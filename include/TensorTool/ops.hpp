@@ -2,6 +2,7 @@
 #include <cmath>
 #include <tuple>
 #include <unsupported/Eigen/CXX11/Tensor>
+#include "dims.hpp"
 
 namespace TensorTool
 {
@@ -30,8 +31,8 @@ namespace TensorTool
             using RHS = Eigen::TensorBase<T2>;
             static_assert(LHS::NumDimensions == LHS::NumDimensions);
             constexpr int dim = LHS::NumDimensions;
-            auto l_size = lhs.dimensions();
-            auto r_size = rhs.dimensions();
+            auto l_size = dimensions(lhs);
+            auto r_size = dimensions(rhs);
             for (int i = 0; i < dim; i++)
             {
                 std::tie(l_size[i], r_size[i]) = broadcast_factor(l_size[i], r_size[i]);
@@ -40,12 +41,12 @@ namespace TensorTool
         }
     }
 
-#define CWISE_MEMBER_OP(name, op)                                    \
-    template <typename T1, typename T2>                              \
-    inline auto name(const T1 &lhs, const T2 &rhs)                   \
-    {                                                                \
-        auto [l_size, r_size] = internal::cwise_broadcast(lhs, rhs); \
-        return lhs.broadcast(l_size).op(rhs.broadcast(r_size));      \
+#define CWISE_MEMBER_OP(name, op)                                                                                                                                                                                        \
+    template <typename T1, typename T2, typename C = std::enable_if_t<std::is_base_of_v<Eigen::TensorBase<T1, Eigen::ReadOnlyAccessors>, T1> && std::is_base_of_v<Eigen::TensorBase<T2, Eigen::ReadOnlyAccessors>, T2>>> \
+    inline auto name(const T1 &lhs, const T2 &rhs)                                                                                                                                                                       \
+    {                                                                                                                                                                                                                    \
+        auto [l_size, r_size] = internal::cwise_broadcast(lhs, rhs);                                                                                                                                                     \
+        return lhs.broadcast(l_size).op(rhs.broadcast(r_size));                                                                                                                                                          \
     }
 
     CWISE_MEMBER_OP(cwise_add, operator+)
@@ -55,17 +56,20 @@ namespace TensorTool
 
 #undef CWISE_MEMBER_OP
 
-#define CWISE_UNARY_OP(name, fn)                                                                                       \
-    template <typename Derived, typename C = std::enable_if_t<std::is_base_of_v<Eigen::TensorBase<Derived>, Derived>>> \
-    inline auto name(const Derived &arg)                                                                               \
-    {                                                                                                                  \
-        using T = Eigen::TensorBase<Derived>;                                                                          \
-        return arg.unaryExpr([](const typename T::Scalar &x) { return fn(x); });                                       \
+#define CWISE_UNARY_OP(name, fn)                                                                                                                 \
+    template <typename Derived, typename C = std::enable_if_t<std::is_base_of_v<Eigen::TensorBase<Derived, Eigen::ReadOnlyAccessors>, Derived>>> \
+    inline auto name(const Derived &arg)                                                                                                         \
+    {                                                                                                                                            \
+        using T = Eigen::TensorBase<Derived>;                                                                                                    \
+        return arg.unaryExpr([](const typename T::Scalar &x) { return fn(x); });                                                                 \
     }
 
     CWISE_UNARY_OP(sin, std::sin)
     CWISE_UNARY_OP(cos, std::cos)
     CWISE_UNARY_OP(tan, std::tan)
+    CWISE_UNARY_OP(asin, std::asin)
+    CWISE_UNARY_OP(acos, std::acos)
+    CWISE_UNARY_OP(atan, std::atan)
 
 #undef CWISE_UNARY_OP
 }

@@ -21,6 +21,11 @@ TEST_CASE("cwise operators", "[tensor][ops]")
     {
         REQUIRE_THROWS(cwise_add(data0, data2));
     }
+
+    SECTION("expr can use as argument")
+    {
+        auto res = cwise_add(cwise_add(data0, data1), data1);
+    }
 }
 
 TEST_CASE("unary cwise operators", "[tensor][ops]")
@@ -32,5 +37,10 @@ TEST_CASE("unary cwise operators", "[tensor][ops]")
         Eigen::Tensor<double, 1> res = sin(data);
         REQUIRE(res.dimension(0) == 2);
         REQUIRE(res(0) == std::sin(M_PI_4));
+    }
+
+    SECTION("expr can use as argument")
+    {
+        auto res = sin(sin(data));
     }
 }

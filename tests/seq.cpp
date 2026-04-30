@@ -3,7 +3,7 @@
 
 using namespace TensorTool;
 
-TEST_CASE("splice operator", "[seq][utils]")
+TEST_CASE("splice operator", "[seq][utils][splice]")
 {
     Eigen::DSizes<int, 3> data{0, 1, 2};
     SECTION("splice can delete elements.")
@@ -49,5 +49,20 @@ TEST_CASE("splice operator", "[seq][utils]")
         REQUIRE(res[0] == 0);
         REQUIRE(res[1] == -1);
         REQUIRE(res[2] == 2);
+    }
+}
+
+TEST_CASE("zip operator", "[seq][utils][zip]")
+{
+    SECTION("zip can zip lists")
+    {
+        Eigen::DSizes<int, 3> data0{0, 1, 2};
+        Eigen::DSizes<int, 3> data1{0, 1, 2};
+        auto res = zip<int>([](auto a, auto b)
+                       { return a + b; }, data0, data1);
+        REQUIRE(res.size() == 3);
+        REQUIRE(res[0] == 0);
+        REQUIRE(res[1] == 2);
+        REQUIRE(res[2] == 4);
     }
 }

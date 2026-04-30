@@ -32,6 +32,11 @@ TEST_CASE("squeeze operator", "[tensor][dims][squeeze]")
         REQUIRE(res.dimension(0) == 2);
         REQUIRE(res.dimension(1) == 3);
     }
+
+    SECTION("expr can use as argument")
+    {
+        auto res = squeeze<1>(data + 1);
+    }
 }
 
 TEST_CASE("unsqueeze operator", "[tensor][dims][unsqueeze]")
@@ -72,6 +77,12 @@ TEST_CASE("unsqueeze operator", "[tensor][dims][unsqueeze]")
         REQUIRE(res.dimension(1) == 3);
         REQUIRE(res.dimension(2) == 1);
     }
+
+    SECTION("expr can use as argument")
+    {
+        auto res0 = unsqueeze<0>(data + 1);
+        auto res1 = unsqueeze<0>(squeeze<0>(unsqueeze<0>(data)));
+    }
 }
 
 TEST_CASE("stack operator", "[tensor][dims][stack]")
@@ -87,5 +98,11 @@ TEST_CASE("stack operator", "[tensor][dims][stack]")
         REQUIRE(res.dimension(0) == 3);
         REQUIRE(res.dimension(1) == 2);
         REQUIRE(res.dimension(2) == 3);
+    }
+
+    SECTION("expr can use as argument")
+    {
+        auto res0 = stack<0>(data0 + 1, data1 + 2, data2 + 3);
+        auto res1 = unsqueeze<0>(stack<0>(data0 + 1, data1 + 2, data2 + 3));
     }
 }
