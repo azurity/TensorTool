@@ -1,5 +1,7 @@
 # TensorTool
 
+![ci status](https://github.com/azurity/TensorTool/actions/workflows/cmake-single-platform.yml/badge.svg)
+
 A C++ header-only tensor manipulation library built on top of [Eigen](https://eigen.tuxfamily.org/).
 
 ## Overview
