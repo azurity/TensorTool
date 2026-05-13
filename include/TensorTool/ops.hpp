@@ -8,7 +8,7 @@ namespace TensorTool
 {
     namespace internal
     {
-        std::tuple<int, int> broadcast_factor(int lhs, int rhs)
+        inline std::tuple<int, int> broadcast_factor(int lhs, int rhs)
         {
             if (lhs > rhs)
             {
